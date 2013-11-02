@@ -1,0 +1,42 @@
+mv hithere-1.0.tar.gz hithere_1.0.tar.gz
+tar xvf hithere_1.0.tar.gz 
+cd hithere-1.0
+mkdir debian
+
+# debian/changelog
+dch --create -v 1.0-1 --package hithere # dch from devtools package
+
+# debian/compat
+echo 8 > debian/compat  # magic
+
+# debian/control
+cat <<'EOF' > debian/control   # boilerplate
+Source: hithere
+Maintainer: Lars Wirzenius <liw@liw.fi>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 8)
+
+Package: hithere
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: greet user
+ hithere greets the user, or the world.
+EOF
+
+# debian/copyright
+touch debian/copyright # fill in as appropriate
+
+# debian/rules
+cat <<'EOF' > debian/rules
+#!/usr/bin/make -f
+%:
+	dh $@
+EOF
+
+# debian/source/format
+mkdir debian/source
+cat <<'EOF' > debian/source/format
+3.0 (quilt)
+EOF
