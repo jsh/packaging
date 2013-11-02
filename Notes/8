@@ -1,0 +1,14 @@
+Friday, November 1, Patrick Homans asks me for help, for one of his clients who needs someone to turn a zipfile into a Debian package.
+
+I've never made a Debian package, but I've made RPMs, and it's a weekend/evening job: hours, not months. Someone experienced could do it easily. Most of the work for me would be learning how.
+
+I don't have time, but say I'll find him someone. Unfortunately, everyone I ask is as overbooked as I am.
+
+I think, "Well, I don't want to leave Patrick out on a limb. Guess I'll see how hard it would be."
+
+And, as luck would have it, Jeremy Hinegardner says, helpfully, there's a good tool for the job on GitHub.
+
+https://github.com/jordansissel/fpm.git
+
+I get up Saturday morning at 7, grab a Dell netbook and head down to Caffe Sole
+The box is underpowered and doesn't have much of a disk, but if the job's too hard for the netbook, it's probably too hard for me, too.
