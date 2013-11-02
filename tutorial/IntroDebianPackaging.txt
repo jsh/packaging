@@ -1,0 +1,737 @@
+Debian
+
+Wiki
+
+Login
+
+  • FrontPage
+  • RecentChanges
+  • FindPage
+  • HelpContents
+  • IntroDebianPackaging
+
+Search: [                    ] [Search Titles] [Search Full Text]
+Debian
+Wiki/
+
+  • Immutable Page
+  • Comments
+  • Info
+  • Attachments
+  • More Actions: [Raw Text                ] [Do]
+
+  • IntroDebianPackaging
+
+Translation(s): English - Español - Italiano - Català - Română - Русский
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Contents
+
+ 1. Introduction to Debian Packaging
+ 2. Requirements
+ 3. Three central concepts
+ 4. The packaging work flow
+     1. Step 1: Rename the upstream tarball
+     2. Step 2: Unpack the upstream tarball
+     3. Step 3: Add the Debian packaging files
+     4. Step 4: Build the package
+     5. Step 5: Install the package
+ 5. Conclusion
+ 6. Questions and Answers
+ 7. See also
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Introduction to Debian Packaging
+
+Debian Women IRC training session held by Lars Wirzenius on the 18th November
+2010
+
+  • with a couple of small, clearly marked additions by Sebastian Tennant
+    (following my crash course in Debian packaging by Daniel Baumann at DebCamp
+    2011, Banja Luka)
+
+This is an introductory tutorial for making Debian packages: it doesn't get
+very deep into the more intricate bits of Debian packaging, but it will show
+how to make Debian packages for software that is simple to package.
+
+For this purpose, we will use only the dh command from debhelper 8.
+
+Requirements
+
+In this tutorial it is assumed that:
+
+  • you understand installation of binary packages;
+  • you understand general command line use, and editing of text files using an
+    editor of your choice (emacs, vim, gedit, kate, etc.);
+
+Technical requirements:
+
+  • build-essential
+  • devscripts
+  • debhelper version 8 or higher
+
+Three central concepts
+
+The three central concepts are
+
+  • upstream tarball:
+      □ Usually, people package software that someone else, called the upstream
+        developer, has written.
+      □ The upstream developer will make a release of his software in the "
+        upstream source archive file" or tarball.
+      □ A tarball is the .tar.gz or .tgz file upstream makes (tarball is a bit
+        of computer jargon), and it can also be compressed to .tar.bz2,.tb2 or
+        .tar.xz. The tarball is exactly what Debian takes and builds a package
+        out of.
+  • source package:
+      □ When you have the upstream tarball, the next step is to make the Debian
+        source package.
+  • binary package:
+      □ From this source package you can then build the Debian binary package
+        which is what actually get installed.
+
+The source package consists, in its simplest form, of three files:
+
+  • The upstream tarball, renamed to follow a systematic pattern.
+  • A debian directory, with any changes made to upstream source, plus all the
+    files created for the Debian package. This has a .debian.tar.gz ending.
+  • A description file (with .dsc ending), which lists the other two files.
+
+This sounds a bit more complicated than is necessary, at first sight: It would
+be simpler to just have everything in one file.
+
+  • However, it turns out that it saves a lot of disk space and bandwidth to
+    keep the upstream tarball separate from any Debian specific changes.
+  • It's also easier to keep track of what has been necessary to change for
+    Debian.
+
+The packaging work flow
+
+The packaging work flow is usually like this:
+
+  • Step 1: Rename the upstream tarball
+  • Step 2: Unpack the upstream tarball
+  • Step 3: Add the Debian packaging files
+  • Step 4: Build the package
+  • Step 5: Install the package
+
+Then you can test your package on your computer.
+
+The source and binary packages can be uploaded to Debian.
+
+For this tutorial Lars has used this tarball.
+
+Step 1: Rename the upstream tarball
+
+The Debian packaging tools assume the upstream tarball has a very specific
+name. It must follow a specific naming pattern.
+
+The name consists of the source package name, an underscore, the upstream
+version number, followed by .orig.tar.gz. The source package name should be all
+in lower case, and can contain letters, digits, and dashes. Some other
+characters are also allowed.
+
+If the upstream developer uses a name that looks like a good Debian source
+package name, then you should use that. Otherwise, change the upstream name as
+little as possible to make it fit for Debian. In this case, upstream has wisely
+picked a suitable name, "hithere", so there's no need to worry about it.
+
+We should end up with a file called hithere_1.0.orig.tar.gz.
+
+Note that there is an underscore (_), not a dash (-), in the name. This is
+important, because the packaging tools are picky.
+
+  • # mv hithere-1.0.tar.gz hithere_1.0.orig.tar.gz
+
+Step 2: Unpack the upstream tarball
+
+In general, the sources should go into a directory named after the source
+package name and upstream version (with a hyphen, not an underscore, in
+between) so ideally the upstream tarball will unpack into a directory called
+"hithere-1.0".
+
+This is again because the packaging tools are picky.
+
+In this case, upstream has again been wise and made the tarball unpack into the
+right subdirectory.
+
+  • # tar xf hithere_1.0.orig.tar.gz
+
+Step 3: Add the Debian packaging files
+
+All of these files go into the debian/ subdirectory inside the source tree.
+
+  • # cd hithere-1.0
+
+  • # mkdir debian
+
+There are a bunch of files we need to provide. Let's look at them in order.
+
+debian/changelog
+
+First file is debian/changelog. This is the log of changes to the Debian
+package.
+
+It does not need to list everything that has changed in upstream code, though
+it can be helpful to users to summarize those changes, too. Since we are now
+making the first version, there is nothing to log. However, we still need to
+make a changelog entry, because the packaging tools read certain information
+from the changelog. Most importantly, they read the version of the package.
+
+debian/changelog has a very particular format. The easiest way to create it is
+to use the dch tool.
+
+  • # dch --create -v 1.0-1 --package hithere
+
+This will result in a file like this:
+
+hithere (1.0-1) UNRELEASED; urgency=low
+
+  * Initial release. (Closes: #XXXXXX)
+
+ -- Lars Wirzenius <liw@liw.fi>  Thu, 18 Nov 2010 17:25:32 +0000
+
+A couple of notes:
+
+  • The hithere part MUST be the same as the source package name. 1.0-1 is the
+    version. The 1.0 part is the upstream version. The -1 part is the Debian
+    version: the first version of the Debian package of upstream version 1.0.
+    If the Debian package has a bug, and it gets fixed, but the upstream
+    version remains the same, then the next version of the package will be
+    called 1.0-2. Then 1.0-3, and so on.
+  • UNRELEASED is called the upload target. It tells the upload tool where the
+    binary package should be uploaded. UNRELEASED means the package is not yet
+    ready to be uploaded. It's a good idea to keep the UNRELEASED there so you
+    don't upload by mistake.
+  • Ignore urgency=low for now. Just keep it there.
+  • The (Closes: #XXXXXX) bit is for closing bugs when the package is uploaded.
+    This is the usual way in which bugs are closed in Debian: when the package
+    that fixes the bug is uploaded, the bug tracker notices this and marks the
+    bug as closed. We can just remove the (Closes...) bit. Or not. It doesn't
+    matter right now.
+  • The final line in the changelog tells who made this version of the package,
+    and when. The dch tool tries to guess the name and e-mail address, but you
+    can configure it with the right details. See the dch(1) manual page for
+    details.
+
+debian/compat
+
+This file should contain the number 8. This is a magic number. Do not put any
+other number in there.
+
+8
+
+debian/compat specifies the "compatibility level" for the debhelper tool. We
+don't need to go into what that means, right now.
+
+debian/control
+
+The control file describes the source and binary package, and gives some
+information about them, such as their names, who the package maintainer is, and
+so on. Below an example of what it might look like.
+
+Source: hithere
+Maintainer: Lars Wirzenius <liw@liw.fi>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 8)
+
+Package: hithere
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: greet user
+ hithere greets the user, or the world.
+
+There are several required fields, but you can just treat them as magic, for
+now. So, in debian/control, there are two paragraphs.
+
+The first one describes the source package:
+
+"Source:"
+    field gives the source package name.
+"Maintainer:"
+    gives the name and e-mail address of the person responsible for the
+    package.
+"Priority:"
+    gives the priority of the package (one of 'required', 'important',
+    'standard', 'optional' or 'extra'). In general a package is 'optional'
+    unless it's 'essential' for a standard functioning system, i.e., booting or
+    networking functionality. A package should be 'extra' rather than
+    'optional' if it conflicts with another 'optional' package, or if it's not
+    intended to be used on a standard desktop installation. Notable example of
+    'extra' packages are debugging packages. (Added by Sebastian Tennant).
+"Build-Depends:"
+    lists the packages that need to be installed to build the package. They
+    might or might not be needed to actually use the package.
+
+The second paragraph describes the binary package built from this source.
+Actually, there can be many binary packages built from the same source.
+
+"Package:"
+    is the binary package name. The name might be different from the source
+    package name.
+"Architecture:"
+    tells which computer architectures the binary package is expected to work
+    on: i386 for 32-bit Intel CPUs, amd64 for 64-bit, armel for ARM processors,
+    and so on. Debian works on about a dozen computer architectures in total,
+    so this architecture support is crucial. The "Architecture:" field can
+    contain names of particular architectures, but usually it contains one of
+    two special values.
+
+    "any"
+        (which we see in the example) means that the package can be built for
+        any architecture. In other words, the code has been written portably,
+        so it does not make too many assumptions about the hardware. However,
+        the binary package will still need to be built for each architecture
+        separately.
+    "all"
+        means that the same binary package will work on all architectures,
+        without having to be built separately for each. For example, a package
+        consisting only of shell scripts would be "all". Shell scripts work the
+        same everywhere and not need to be compiled.
+
+"Depends:"
+
+    field lists the packages that must be installed for the program in the
+    binary package to work. Listing such dependencies manually is tedious,
+    error-prone work. To make this work, the ${shlibs:Depends} magic bit needs
+    to be in there. The other magic stuff is there for debhelper. The
+    {misc:Depends} bit. The shlibs magic is for shared library dependencies,
+    the misc magic is for some stuff debhelper does. For other dependencies,
+    you need to add them manually to Depends or Build-Depends and the ${...}
+    magic bits only work in Depends
+"Description:"
+    is the package description. It is meant to be helpful to users.
+
+debian/copyright
+
+It is quite an important file, but for now we will be happy enough with an
+empty file.
+
+For Debian, this file is used to keep track of the legal, copyright-related
+information about a package. However, it is not important from a technical
+point of view. For now, we'll concentrate on the technical aspects. We can get
+back to debian/copyright later, if there's interest.
+
+debian/rules
+
+It should look like this:
+
+#!/usr/bin/make -f
+%:
+        dh $@
+
+  • <!> Note: The last line should be indented by one TAB character, not by
+    spaces. The file is a makefile, and TAB is what the make command wants
+
+debian/rules can actually be quite a complicated file. However, the dh command
+in debhelper version 7 has made it possible to keep it this simple in many
+cases.
+
+debian/source/format
+
+The final file we need is debian/source/format, and it should contain the
+version number for the format of the source package, which is "3.0 (quilt)".
+
+3.0 (quilt)
+
+Step 4: Build the package
+
+First try
+
+Now we can build the package.
+
+There are many commands we could use for this, but this is the one we'll use. 
+If you run the command, you'll get output similar to this:
+
+  • # debuild -us -uc
+
+make[1]: Entering directory `/home/liw/debian-packaging-tutorial/x/hithere-1.0'
+install hithere /home/liw/debian-packaging-tutorial/x/hithere-1.0/debian/hithere/usr/local/bin
+install: cannot create regular file `/home/liw/debian-packaging-tutorial/x/hithere-1.0/debian/hithere/usr/local/bin': No such file or directory
+make[1]: *** [install] Error 1
+make[1]: Leaving directory `/home/liw/debian-packaging-tutorial/x/hithere-1.0'
+dh_auto_install: make -j1 install DESTDIR=/home/liw/debian-packaging-tutorial/x/hithere-1.0/debian/hithere returned exit code 2
+make: *** [binary] Error 29
+dpkg-buildpackage: error: fakeroot debian/rules binary gave error exit status 2
+debuild: fatal error at line 1325:
+dpkg-buildpackage -rfakeroot -D -us -uc failed
+
+
+Something went wrong. This is what usually happens. You do your best creating
+debian/* files, but there's always something that you don't get right.
+
+So, the thing that went wrong is this bit:
+
+install hithere /home/liw/debian-packaging-tutorial/x/hithere-1.0/debian/hithere/usr/local/bin
+
+
+The upstream Makefile is trying to install the compiled program into the wrong
+location.
+
+There are a couple of things going on here: first is a bit about how Debian
+packaging works.
+
+Correction
+
+When the program has been built, and is "installed", it does not get installed
+into /usr or /usr/local, as usual, but somewhere under the debian/
+subdirectory.
+
+We create a subset of the whole file system under debian/hithere, and then we
+put that into the binary package. So the .../debian/hithere/usr/local/bin bit
+is fine, except that it should not be installing it under usr/local, but
+directly under usr.
+
+We need to do something to make it install into the right location (debian/
+hithere/usr/bin).
+
+The right way to fix this is to change debian/rules so that it tells the
+Makefile where to install things.
+
+#!/usr/bin/make -f
+%:
+        dh $@
+
+override_dh_auto_install:
+        $(MAKE) DESTDIR=$$(pwd)/debian/hithere prefix=/usr install
+
+It's again a bit of magic, and to understand it you'll need to know how
+Makefiles work, and the various stages of a debhelper run.
+
+For now, I'll summarize by saying that there's a command debhelper runs that
+takes care of installing the upstream files, and this stage is called
+dh_auto_install.
+
+We need to override this stage, and we do that with a rule in debian/rules
+called override_dh_auto_install.
+
+The final line in the new debian/rules is a bit of 1970s technology to invoke
+the upstream Makefile from debian/rules with the right arguments.
+
+Let's try again
+
+  • # debuild -us -uc
+
+It still fails!
+
+  • This time, this is the failing command:
+
+install hithere /home/liw/debian-packaging-tutorial/x/hithere-1.0/debian/hithere/usr/bin
+
+
+We are now trying to install into the right place, but it does not exist. To
+fix this, we need to tell the packaging tools to create the directory first.
+
+Ideally, the upstream Makefile would create the directory itself, but in this
+case the upstream developer was too lazy to do so.
+
+Another correction
+
+The packaging tools (specifically, debhelper) provide a way to do that.
+
+  • Create a file called debian/hithere.dirs, and make it look like this:
+
+usr/bin
+usr/share/man/man1
+
+The second line creates the directory for the manual page. We will need it
+later. You should be careful to maintain such *.dirs files because it can lead
+to empty directories in future versions of your package if the items listed in
+those files aren't valid any more.
+
+Let's try once more
+
+  • # debuild -us -uc
+
+Now the build succeeds, but there's still some small problems.
+
+debuild runs the lintian tool, which checks the package that has been built for
+some common errors. It reports several for this new package:
+
+Now running lintian...
+W: hithere source: out-of-date-standards-version 3.9.0 (current is 3.9.1)
+W: hithere: copyright-without-copyright-notice
+W: hithere: new-package-should-close-itp-bug
+W: hithere: wrong-bug-number-in-closes l3:#XXXXXX
+Finished running lintian.
+
+
+These should eventually be fixed, but none of them look like they'll be a
+problem for trying the package. So let's ignore them for now.
+
+Look in the parent directory to find the package that was built.
+
+  • # ls ..
+
+hithere-1.0                  hithere_1.0-1_amd64.deb  hithere_1.0.orig.tar.gz
+hithere_1.0-1_amd64.build    hithere_1.0-1.debian.tar.gz
+hithere_1.0-1_amd64.changes  hithere_1.0-1.dsc
+
+
+Step 5: Install the package
+
+The following command will install the package that you've just built.
+
+Do NOT run it on a computer unless you don't mind breaking it.
+
+  • In general, it is best to do package development on a computer that is well
+    backed up, and that you don't mind re-installing if everything goes really
+    badly wrong.
+
+Virtual machines are a good place to do development.
+
+  • # sudo dpkg -i ../hithere_1.0-1_amd64.deb
+
+[sudo] password for liw:
+Selecting previously deselected package hithere.
+(Reading database ... 154793 files and directories currently installed.)
+Unpacking hithere (from ../hithere_1.0-1_amd64.deb) ...
+Setting up hithere (1.0-1) ...
+Processing triggers for man-db ...
+liw@havelock$
+
+How do we test the package? We can run the command.
+
+  • # hithere
+
+It works!
+
+But, it's not perfect. Remember, lintian had things to say, and debian/
+copyright is empty, etc.
+
+We have a package that works, but it isn't yet of the high quality that is
+expected of a Debian package.
+
+Conclusion
+
+Once you've built your own packages, you'll eventually want to learn how to set
+up your apt repository, so your package is easy to install. The best tool for
+that I know of is reprepro.
+
+For more testing of your package, you may want to look at the tool called
+piuparts. (I wrote it originally so it is perfect and never has any bugs.
+er...)
+
+And, finally, if you start making changes to the upstream source, you'll want
+to learn about the quilt tool.
+
+Other things you might want to read are listed on the http://www.debian.org/
+devel/ web page.
+
+Questions and Answers
+
+QUESTION: Can I generate a multi-arch package?
+
+ANSWER: I don't think Debian supports multi-arch packages, yet, but we will
+cover "Architecture: all" packages later
+
+QUESTION: Please clarify about packaging those packages that are already in
+binary form, i.e., nvidia blob or likewise
+
+ANSWER: For binary blob packages, you treat the tarball with the blobs as the
+source package, and just avoid compiling them from source; I've never had to do
+this, though.
+
+QUESTION: is there anything like PPA in Ubuntu?
+
+ANSWER: Debian does not run a PPA service like Ubuntu, but all the tools to
+make apt repositories yourself are there, it's just a lot to configure by
+oneself.
+
+QUESTION: do we need to repack the original tarball if it doesn't contains a
+properly named foo-1.0 folder?
+
+ANSWER: I think that these days, you don't need to repack it. It used to be
+necessary, many many years ago, but now the "dpkg-source -x" command will name
+the directory the right way, if necessary.
+
+QUESTION: I can see "official" DEB packages in /var/cache/apt/archives without
+changelog and compat files. Why?
+
+ANSWER: the .deb packages in /var/cache/apt/archives are binary packages; the
+changelog is included in them (under a different name), the compat file is only
+in the source package
+
+QUESTION: Liw said the the compat file should contain the magic number 8, I
+assume this just means as single char files as produced by 'echo 8 >debian/
+compat' ?
+
+ANSWER: yes, a single character 8 is enough to have in debian/compat
+
+QUESTION: I've heard of non-maintainer specific format for debian revision
+numbers
+
+ANSWER: I think you mean either the "native package" format (in which the
+version number would be just 1.0, not 1.0-1); or the "non-maintainer upload"
+format, in which case that's too much detail for this session to get it right
+in all cases, but "1.0-1.1" would be an example
+
+QUESTION: When is "dpkg-source -x" run? Is it done manually?
+
+ANSWER: "dpkg-source -x" is the command to unpack a Debian source package after
+it has already been built (usually by someone else); it is not usually run when
+creating the package
+
+QUESTION: how can one determine the needed packages to be used by
+Build-Depends?
+
+ANSWER: I usually do that by a) trial and error and b) reading the source of
+the program. Both are usually necessary
+
+QUESTION: can I build package for armel from my i386, and can i do it easy?
+
+ANSWER: that would be cross-compilation, and I don't think there is an easy way
+to do it; there are tools for it, but I am not familiar with them, sorry.
+
+QUESTION: what's the difference between Depends and Build Depends, in what case
+I have to use only Depends instead of Build-Depends?
+
+ANSWER: Build-Depends are needed only during package build, while it is being
+compiled, and its test suite is being run. Depends is needed only when the
+package is actually being used, after being installed. Some things might be
+both build and runtime dependencies, and in that case you need to put them into
+both Build-Depends and Depends.
+
+As an example, if a package contains a PHP script, but it does not get run
+while the package is built, then PHP would go into Depends only, not
+Build-Depends.
+
+However, if the PHP script is only used to run a test, and does not get
+included in the binary package, it would only be in Build-Depends and not in
+Depends
+
+QUESTION: may I have a Build-Depends that does not have a corresponding
+Depends? I'm thinking to statical linked libraries
+
+ANSWER: Build-Depends and Depends are pretty much entirely separate, and it is
+perfectly ok (from a packaging tool point of view) to have dependencies only in
+one and not the other, or in both
+
+QUESTION: If I want to do a NMU, should I write my name in the Uploader field,
+the Maintainer field, none ?
+
+ANSWER: (by dapal) none, but the first line of the changelog should be
+"Non-maintainer upload"
+
+QUESTION: When I build a package with "Architecture: all" field, some of the
+resulting file (b.build, .changes) still have the build architecture in the
+name. Is a right behavior?
+
+ANSWER: yep, that is the right behavior, no need to worry about it
+
+QUESTION: Is there another package for source package or its the same of binary
+package? I will generate and maintain two packages (binary and source)?
+
+ANSWER: you edit the source package and then run a command (which I will get to
+in a bit) to build the binary package out of the source package
+
+QUESTION: It's not clear to me if "Architecture" options will make effect over
+source package (building process) or binary package (install and run).
+
+ANSWER: the "Architecture:" field tells whoever is building the package whether
+there is any point in building the package on a particular computer
+architecture so if it says i386 only, then there's no point in building it on
+AMD64
+
+QUESTION: that example debian/rules contains only #!make -f , what to do with .
+/configure , or cmake or scons or .. anything else part?
+
+ANSWER: dh has a lot of heuristic, so a package with a ./configure script, or
+one of the other common ways of building packages, will usually build without
+any additions
+
+QUESTION: heuristics is good, but what if we need to pass
+--with-something-special to configure or cmake arguments, does heuristics
+handle those source packages that need ./waf and other tools to build ?
+
+ANSWER: I like dapal's answer: <dapal> lilith: using dh7, if you want to pass
+something to ./configure, just do something like: override_dh_auto_configure
+<TAB>dh_auto_configure -- --your-params
+dh has a nice extension/override mechanism that allows you to override
+particular parts; it is pretty easy to use, once you've read the docs
+<aron> I had some bad experience with packaging software that uses waf as its
+build system. It usually contains binary blob that cannot be extract by
+standard tools (yes, it embedd a tgz in the script), and what's critical, it's
+hard to maintain your Debian package with a waf build system because it is not
+intended to help upstream to build their packages in a rather standard way, but
+only works for me. You should really suggest your upstream to consider another
+one (powerful ones like CMake, Autotools; or simpler ones like
+python-distutils-extra) if possible.
+
+QUESTION: where can we find docs for override stuff of debhelper 8?
+
+ANSWER: dh runs a specific sequence of commands to build a package; each
+command is called dh_something, and each such command can be overridden by
+having a debian/rules entry called override_dh_something.
+
+Add the --no-act option to the dh command in debian/rules to see what commands
+it runs; you then have to read the manual page for that command to see if you
+can configure it (via a file such as debian/hithere.dirs), or if you need to
+override it. In practice, using --no-act option in combination with --verbose
+will let you know more details about what it would run.
+
+QUESTION: from where do you usually run your commands? inside the dir
+hithere-1.0 or outside? should there be an outer dir called hithere (without
+number)
+
+ANSWER: I always run the packaging commands in the hithere-1.0 directory, and i
+usually have a directory above that called hithere but the parent directory is
+not necessary, it is just neater, so files from different projects don't get
+mixed up
+
+QUESTION: I have a upstream that needs a qmake (uses Qt) before make. Can I add
+it to debian/rules? How?
+
+ANSWER: (by gregoa) debhelper supports qmake since 7.4.12 (so no additional
+things needed). before that you needed a override_dh_auto_configure :\n\tqmake
+
+QUESTION: what is a good work flow to update a package to a new upstream
+version?
+
+ANSWER: ah, I am not sure what is the best work flow for that, but basically:
+unpack the upstream source to a new directory, copy the debian/* directory from
+the old package, update debian/changelog ("dch -v 1.2.3-4") and try to build,
+and fix anything that is broken. That's not a really good work flow, but for
+that you will need to learn quilt, and possibly how to use version management
+with debian packaging, and that's too big a topic for this session, sorry
+
+QUESTION: I have a made debian-package that depends on several other packages.
+The only thing my package does is actually configure the other packages in a
+certain way that it fits certain peoples needs. For this it also makes some
+system critical changes, like activating network routing in kernel and so on.
+Is there something like a rule what an official package is allowed to do or
+not? Can such a package get an official package?
+
+ANSWER: http://www.debian.org/doc/debian-policy/ is the best written set of
+rules we have for what an official Debian package is allowed to do, or is
+required to do.
+
+Debian packages are not allowed to change another package's configurations,
+unless that package provides a documented interface for it
+
+See also
+
+  • http://www.debian.org/devel/
+  • http://www.debian.org/doc/debian-policy/
+  • http://liw.fi/manpages/
+  • Packaging is the page that gathers everything about packaging on this wiki
+  • Debian Women IRC log: making Debian packages
+  • Debian Women IRC log: taking an existing package, re-building it, applying
+    changes to it, and preparing those changes so as to send them as a bug
+    patch.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CategoryPackaging
+
+IntroDebianPackaging (last edited 2013-08-30 02:50:06 by DavidEisner)
+
+  • MoinMoin Powered
+  • Python Powered
+  • Valid HTML 4.01
+  • Debian Wiki team, bugs and config available.
+  • Hosting provided by Dembach Goo Informatik GmbH & Co KG
+
