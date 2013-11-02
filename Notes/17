@@ -1,3 +1,5 @@
 Install the package? Just build it, then run "dpgk -i *.deb". After this, running the command works fine.
 
 dpkg -r hithere blows it away again.
+
+Add all the generated files to .gitignore, then clean up with "git clean -dfx"
