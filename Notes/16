@@ -1,0 +1,13 @@
+I start another run at building the package.
+
+The instructions design the build to fail, to help understand common errors,
+but the first error I hit isn't in the instructions: the tarball still has the wrong name.
+
+Instead of 
+../tutorial/hithere_1.0.tar.gz
+it needs to be called
+../tutorial/hithere_1.0.orig.tar.gz
+
+Renaming it gets the advertised error message.
+
+Fixing other whining gets me a package that debuild approves of, though lintian throws 7 warnings.  This is more than the tutorial lists, but they're tolerable, for now.  Time to release and move on.

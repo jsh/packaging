@@ -1,5 +1,10 @@
+## Part 1
 mv hithere-1.0.tar.gz hithere_1.0.tar.gz
+
+## Part 2
 tar xvf hithere_1.0.tar.gz 
+
+## Part 3
 cd hithere-1.0
 mkdir debian
 
@@ -40,3 +45,26 @@ mkdir debian/source
 cat <<'EOF' > debian/source/format
 3.0 (quilt)
 EOF
+
+## Part 4
+# tarball naming fix
+git mv ../hithere_1.0.tar.gz ../hithere_1.0.orig.tar.gz
+
+# debian/rules fix
+chmod +x debian/rules
+cat <<'EOF' > debian/rules
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_install:
+	$(MAKE) DESTDIR=$$(pwd)/debian/hithere prefix=/usr install
+EOF
+
+# debian/hithere.dirs
+cat <<'EOF' > debian/hithere.dirs
+usr/bin
+usr/share/man/man1
+'EOF'
+
+## Part 5
