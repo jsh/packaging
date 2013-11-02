@@ -1,1 +1,11 @@
 fpm
+tutorial/hithere-1.0/debian/files
+tutorial/hithere-1.0/debian/hithere.debhelper.log
+tutorial/hithere-1.0/debian/hithere.substvars
+tutorial/hithere-1.0/debian/hithere/
+tutorial/hithere-1.0/hithere
+tutorial/hithere_1.0-1.debian.tar.gz
+tutorial/hithere_1.0-1.dsc
+tutorial/hithere_1.0-1_i386.build
+tutorial/hithere_1.0-1_i386.changes
+tutorial/hithere_1.0-1_i386.deb
