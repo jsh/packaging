@@ -68,3 +68,7 @@ usr/share/man/man1
 'EOF'
 
 ## Part 5
+debuild -us -uc
+sudo dpkg -i ../*.deb
+cd /tmp
+hithere

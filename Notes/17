@@ -1,0 +1,3 @@
+Install the package? Just build it, then run "dpgk -i *.deb". After this, running the command works fine.
+
+dpkg -r hithere blows it away again.
