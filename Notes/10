@@ -1,9 +1,0 @@
-I grab the tutorial tarball and a text copy of the tutorial (w3m -dump) into a directory, in case the shop's router goes down.
-
-Now that it's later in the day, I'm getting interruptions. Sigh. Gotta work earlier. :-)
-
-I learn that I no longer need the "z" in "tar zxvf".  Very useful.
-
-I get through step 3, "Add the Debian Package Files", keeping notes as a shell script, and get ready to commit and push to GitHub before trying the first, designed-to-fail run of step 4, "Build the Package".
-
-I realize that if I'm using git-flow, I might as well tie steps to features and releases. What the heck. I'll take a minute to do that.
